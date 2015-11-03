@@ -57,6 +57,9 @@
       $finalArea.appendChild(spanTag);
 
     });
+
+    // Hide Spinner
+    toggleSpinner(false);
   }
 
   function getJSON(url, cb) {
@@ -147,6 +150,35 @@
     });
   }
 
+  function toggleSpinner (show) {
+
+    // Find Nav Area
+    $navArea = document.querySelector('.subnav-links');
+
+    if(show) {
+
+      // Build Container
+      var $container = document.createElement('a');
+      $container.classList.add('subnav-item');
+      $container.classList.add('tw_loader-stuff');
+
+      // Create Text Node
+      var $text = document.createTextNode('Calculating ');
+
+      // Build Spinner
+      var $spinner = document.createElement('span');
+      $spinner.classList.add('tw_throbber-loader');
+
+      // Put it all together and display
+      $container.appendChild($text);
+      $container.appendChild($spinner);
+      $navArea.appendChild($container);
+
+    } else {
+      document.querySelector('.tw_loader-stuff').style.display = 'none';
+    }
+  }
+
   function run() {
     var matches, repo, owner;
 
@@ -157,6 +189,7 @@
       repo = 'Assignments';
 
       loadOpenRatio(repo, owner);
+      toggleSpinner(true);
     }
   }
 
