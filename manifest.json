@@ -1,0 +1,22 @@
+{
+  "manifest_version": 2,
+
+  "name": "Github Assignment Ratio",
+  "description": "This extension shows the current assignment ratio, broken down by student.",
+  "version": "1.0.0",
+
+  "content_scripts": [ {
+      "js": [ "index.js" ],
+      "css": [ "main.css" ],
+      "matches": [
+        "https://github.com/*"
+      ]
+   } ],
+
+  "options_page": "options.html",
+
+  "permissions": [
+    "https://api.github.com/",
+    "storage"
+  ]
+}
