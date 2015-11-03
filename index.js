@@ -3,6 +3,21 @@
   var token;
   var weekend;
   var ghAPI = 'https://api.github.com/repos/';
+  var regex = /Assignment (.*)/i;
+  var pointsAvailable = 0;
+  var student_points = [];
+
+  function checkComplete(len) {
+    if (student_points.length >= len) {
+      
+      // Remap Object & Add a percentage
+      student_points.forEach( function (sp) {
+        sp.percentageComplete = Math.floor((sp.points / pointsAvailable) * 100) + '%';
+      });
+      console.log(student_points);
+
+    }
+  }
 
   function getJSON(url, cb) {
     var xhr = new XMLHttpRequest();
@@ -20,27 +35,22 @@
 
     // Get All users
     var user_url = ghAPI+owner+'/'+repo+'/assignees';
-    if (token) { user_url = user_url + "&access_token=" + token; }
-
+    if (token) { user_url = user_url + "?access_token=" + token; }
     getJSON(user_url, function (users) {
-
-      console.log(users);
-
 
       // Get the count of assignments
       // Generate an array of all of the assignments
+      // FIX ME - just being lazy. Need a user to get assignment count.
+      // FIX ME - there has to be a better way
       var issue_url = ghAPI+owner+'/'+repo+'/issues?state=all&assignee='+users[0].login;
       if (token) { issue_url = issue_url + "&access_token=" + token; }
-
       getJSON(issue_url, function (issues) {
         var assignmentCount = [];
         for (var i = 1; i <= issues.length; i++) {
           assignmentCount.push(i);
         }
-        console.log(assignmentCount);
 
         // Get total points available
-        var pointsAvailable = 0;
         assignmentCount.forEach( function (a) {
           if (weekend.indexOf(a) >= 0){
             pointsAvailable += 4;
@@ -48,58 +58,53 @@
             pointsAvailable += 1;
           }
         });
-        console.log(pointsAvailable);
+
+        // Get all closed issues by user
+        users.forEach( function (user) {
+          
+          var params = 'state=closed&labels=complete&assignee='+user.login;
+          var user_issues_url = ghAPI+owner+'/'+repo+'/issues?'+params;
+          if (token) { user_issues_url = user_issues_url + "&access_token=" + token; }
+
+          getJSON(user_issues_url, function (user_issues) {
+
+            // Check which assignment it is (regex)
+            var user_assignments_complete = [];
+            if(user_issues.length > 0) {
+              user_issues.forEach(function (issue) {
+                var assignment = issue.title.match(regex);
+                user_assignments_complete.push(Number(assignment[1]));
+              });
+            }
+
+
+            // Calculate their points & percentage
+            // Build an array of students, with name & points            
+            var yourPoints = 0;
+            user_assignments_complete.forEach( function (a) {
+              if (weekend.indexOf(a) >= 0){
+                yourPoints += 4;
+              } else {
+                yourPoints += 1;
+              }
+            });
+
+            student_points.push({
+              student: user.login,
+              points: yourPoints
+            });
+
+
+            // Method to check for complete
+            checkComplete(users.length);
+
+          });
+        });
+
 
 
       });
     });
-
-
-    
-    // Get a list of each student's issues open
-    // Do some math
-
-    // getJSON(url, function(issues){
-
-    //   console.log(issues);
-
-    //   var issuesByUser = [];
-    //   issues.forEach(function(issue){
-    //     var user = issue.assignee.login;
-    //     if (!(user in issuesByUser)) {
-    //       issuesByUser[user] = 0;
-    //     }
-    //     issuesByUser[user]++;
-    //   });
-    //   console.log(issuesByUser);
-
-    //   var users = Object.keys(issuesByUser).sort(function(a, b){
-    //     if (issuesByUser[a] > issuesByUser[b]) {
-    //       return 1;
-    //     } else if (issuesByUser[a] < issuesByUser[b]) {
-    //       return -1;
-    //     }
-    //     return 0;
-    //   }).reverse();
-    //   console.log(users);
-
-    //   users.forEach(function(user){
-    //     var $item, $count, $user, openState, openIssuesCount = issuesByUser[user];
-
-    //     // Get user's actual name
-    //     var user_url = 'https://api.github.com/users/'+user;
-    //     if (token) {
-    //       user_url = user_url + "?access_token=" + token;
-    //     }
-
-    //     getJSON(user_url, function (usrObj) {
-
-    //       // console.log(usrObj);
-
-    //     });
-
-    //   });
-    // });
   }
 
   function run() {
@@ -116,9 +121,13 @@
   }
 
   chrome.storage.sync.get(['token', 'weekend'], function(items) {
-    token   = items.token;
-    weekend = items.weekend;
-    console.log(items);
+    token = items.token;
+    if (items.weekend) {
+      var arr = items.weekend.split(',');
+      weekend = arr.map( function (a) {
+        return Number(a);
+      });
+    }
     run();
   });
   
