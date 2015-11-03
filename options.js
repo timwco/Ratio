@@ -28,28 +28,10 @@ function hasToken(has) {
   }
 }
 
-function updateWeekend(event) {
-  event.preventDefault();
-  var weekend = weekendInput.value;
-  chrome.storage.sync.set({'weekend': weekend}, function () {
-    alert('Weekend Assignments Saved!');
-  });
-}
-
-function updateWeekendEvent(weekend) {
-  if(weekend) {
-    weekendInput.value = weekend;
-  }
-  formWeekend.addEventListener('submit', updateWeekend);
-}
-
 var form = document.querySelector('#github_assignments_options');
 var addEl = document.querySelector('.add-token');
 var removeEl = document.querySelector('.remove-token');
-var formWeekend = document.querySelector('#weekend_assignments');
-var weekendInput = document.querySelector('.weekendInput');
 
 chrome.storage.sync.get(['token', 'weekend'], function(items) {
   hasToken(!!items.token);
-  updateWeekendEvent(items.weekend);
 });

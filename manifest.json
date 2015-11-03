@@ -3,7 +3,7 @@
 
   "name": "Github Assignment Ratio",
   "description": "This extension shows will replace the 2-Auth column on the members page, with the percentage of assignments completed.",
-  "version": "1.0.0",
+  "version": "1.0.1",
 
   "content_scripts": [ {
       "js": [ "index.js" ],

@@ -188,19 +188,16 @@
       owner = matches[1];
       repo = 'Assignments';
 
-      loadOpenRatio(repo, owner);
-      toggleSpinner(true);
+      getJSON('https://raw.githubusercontent.com/'+owner+'/Data/master/weekend.json', function (response) {
+        weekend = response;      
+        loadOpenRatio(repo, owner);
+        toggleSpinner(true);
+      });
     }
   }
 
   chrome.storage.sync.get(['token', 'weekend'], function(items) {
     token = items.token;
-    if (items.weekend) {
-      var arr = items.weekend.split(',');
-      weekend = arr.map( function (a) {
-        return Number(a);
-      });
-    }
     run();
   });
   
