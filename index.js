@@ -14,8 +14,6 @@
       student_points.forEach( function (sp) {
         sp.percentageComplete = Math.floor((sp.points / pointsAvailable) * 100);
       });
-
-      console.log(student_points);
     
       // Now that we have everything, let's add to the page
       showPercentOnPage();
@@ -47,12 +45,16 @@
         spanTag.classList.add('tw_danger');
       }
 
+      // Check for non Student members
+      if (studentByNode[0].points <= 0){
+        spanTag.classList.add('tw_grey');
+        spanTag.innerHTML = "N/A";
+      }
+
       // Empty the 2-Factor Area and
       // Replace with our customized span
       $finalArea.innerHTML = '';
-      if (studentByNode[0].points > 0){
-        $finalArea.appendChild(spanTag);
-      }
+      $finalArea.appendChild(spanTag);
 
     });
   }
@@ -73,7 +75,7 @@
 
     // Get All users
     var user_url = ghAPI+owner+'/'+repo+'/assignees';
-    if (token) { user_url = user_url + "?access_token=" + token; }
+    if (token) { user_url = user_url + "?access_token=" + token + '&per_page=100'; }
     getJSON(user_url, function (users) {
 
       // Get the count of assignments
