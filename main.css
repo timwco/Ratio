@@ -1,54 +1,9 @@
-input.subnav-search-input {
-  width: 300px !important;
-}
-
-.subnav {
-  position: relative;
-}
-
-.jd__open-list {
-  clear: both;
-  position: absolute;
-  left: -160px;
-  top: 0;
-}
-
-.jd_open-list-item {
-  padding: 3px 6px;
-  display: block;
-  width: 150px;
-  border-radius: 3px;
+.tw_percent {
   color: white;
-  margin-right: 2px;
-  margin-top: 2px;
-  cursor: pointer;
+  background-color: #43ac6a;
+  padding: 5px 8px;
+  border-radius: 3px;
 }
-
-.jd__good {
-  background: #5ac12c;
-}
-
-.jd__caution {
-  background: #f0ad4e;
-}
-
-.jd__danger {
-  background: #d9534f;
-}
-
-.jd_open-list-user {
-  /*min-width: 100px;*/
-  display: inline-block;
-  text-align: right;
-  margin-right: 5px;
-}
-
-.jd_open-list-count-good {
-  color: green;
-}
-.jd_open-list-count-caution {
-  color: orange;
-}
-.jd_open-list-count-danger {
-  color: red;
+.tw_danger {
+  background-color: #f04124;
 }

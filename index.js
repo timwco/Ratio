@@ -12,11 +12,49 @@
       
       // Remap Object & Add a percentage
       student_points.forEach( function (sp) {
-        sp.percentageComplete = Math.floor((sp.points / pointsAvailable) * 100) + '%';
+        sp.percentageComplete = Math.floor((sp.points / pointsAvailable) * 100);
       });
-      console.log(student_points);
 
+      console.log(student_points);
+    
+      // Now that we have everything, let's add to the page
+      showPercentOnPage();
     }
+  }
+
+  function showPercentOnPage() {
+    var $rows = document.querySelectorAll('.js-org-person');
+    [].forEach.call($rows, function ($row) {
+
+      // Find the elements on the page we will need to access
+      var $userBlock = $row.querySelector('.member-info').querySelector('.member-username');
+      var $finalArea = $row.querySelector('.member-meta');
+
+      // Read current node's username and get that user info
+      var login = $userBlock.innerHTML;
+      var studentByNode = student_points.filter( function (s) {
+        return s.student === login;
+      });
+
+      // Create our percent element
+      var spanTag = document.createElement('span');
+      var percent = document.createTextNode(studentByNode[0].percentageComplete + '%');
+      spanTag.classList.add('tw_percent');
+      spanTag.appendChild(percent);
+
+      // Check for danger zone
+      if (studentByNode[0].percentageComplete < 80) {
+        spanTag.classList.add('tw_danger');
+      }
+
+      // Empty the 2-Factor Area and
+      // Replace with our customized span
+      $finalArea.innerHTML = '';
+      if (studentByNode[0].points > 0){
+        $finalArea.appendChild(spanTag);
+      }
+
+    });
   }
 
   function getJSON(url, cb) {
@@ -110,11 +148,11 @@
   function run() {
     var matches, repo, owner;
 
-    matches = window.location.pathname.match(/^\/(.+)\/(.+)\/issues/);
+    matches = window.location.pathname.match(/^\/.+\/(.+)\/people/);
 
     if (matches) {
       owner = matches[1];
-      repo = matches[2];
+      repo = 'Assignments';
 
       loadOpenRatio(repo, owner);
     }
