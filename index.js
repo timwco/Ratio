@@ -9,12 +9,10 @@
 
   function checkComplete(len) {
     if (student_points.length >= len) {
-      
       // Remap Object & Add a percentage
       student_points.forEach( function (sp) {
         sp.percentageComplete = Math.floor((sp.points / pointsAvailable) * 100);
       });
-    
       // Now that we have everything, let's add to the page
       showPercentOnPage();
     }
@@ -23,6 +21,7 @@
   function showPercentOnPage() {
     var $rows = document.querySelectorAll('.js-org-person');
     [].forEach.call($rows, function ($row) {
+
 
       // Find the elements on the page we will need to access
       var $userBlock = $row.querySelector('.member-info').querySelector('.member-username');
@@ -33,6 +32,10 @@
       var studentByNode = student_points.filter( function (s) {
         return s.student === login;
       });
+
+      // Add number as data-value on main row for sorting
+      var number = studentByNode[0].percentageComplete;
+      $row.setAttribute('data-completion', number);
 
       // Create our percent element
       var spanTag = document.createElement('span');
@@ -104,7 +107,7 @@
 
         // Get all closed issues by user
         users.forEach( function (user) {
-          
+
           var params = 'state=closed&labels=complete&assignee='+user.login;
           var user_issues_url = ghAPI+owner+'/'+repo+'/issues?'+params;
           if (token) { user_issues_url = user_issues_url + "&access_token=" + token; }
@@ -122,7 +125,7 @@
 
 
             // Calculate their points & percentage
-            // Build an array of students, with name & points            
+            // Build an array of students, with name & points
             var yourPoints = 0;
             user_assignments_complete.forEach( function (a) {
               if (weekend.indexOf(a) >= 0){
@@ -175,8 +178,56 @@
       $navArea.appendChild($container);
 
     } else {
+      var $sort = document.createElement('a');
+      $sort.classList.add('subnav-item');
+      $sort.textContent = 'Sort (High - Low)';
+      $sort.setAttribute('href', '#');
+      $sort.setAttribute('data-sort', 'down');
+
+      // Hide Current one & append new sort link
       document.querySelector('.tw_loader-stuff').style.display = 'none';
+      $navArea.appendChild($sort);
+
+      // Call to click event binding
+      $sort.addEventListener('click', sortList);
+
     }
+  }
+
+  function sortList (event) {
+    event.preventDefault();
+    var reverse;
+    if (this.dataset.sort === 'down') {
+      this.textContent = 'Sort (Low - High)';
+      reverse = false;
+      this.dataset.sort = 'up';
+    } else {
+      this.textContent = 'Sort (High - Low)';
+      reverse = true;
+      this.dataset.sort = 'down';
+    }
+    sortChildren(
+      document.querySelector('.member-listing'),
+      function(li) { return li.dataset.completion; },
+      reverse
+    );
+  }
+
+  function sortChildren(wrap, f, reverse) {
+    var l = wrap.children.length,
+        arr = new Array(l);
+    for(var i=0; i<l; ++i)
+      arr[i] = [f(wrap.children[i]), wrap.children[i]];
+    if (reverse) {
+      arr.sort(function(a,b){ return a[0]-b[0]; });
+    } else {
+      arr.sort(function(a,b){ return b[0]-a[0]; });
+    }
+    var par = wrap.parentNode,
+        ref = wrap.nextSibling;
+    par.removeChild(wrap);
+    for(var i=0; i<l; ++i) wrap.appendChild(arr[i][1]);
+    par.insertBefore(wrap, ref);
   }
 
   function run() {
